@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 
 
 VALID_CANDIDATES = {1, 2}
-VALID_CHECKS = {1, 2, 3}
+VALID_CHECKS = {1, 2, 3, 4}
 
 
 def reject_non_json_constant(value: str) -> None:
@@ -63,15 +63,13 @@ def validate(path: Path) -> list[str]:
 
         check = post.get("c")
         if type(check) is not int or check not in VALID_CHECKS:
-            errors.append(f"{location}.c: expected 1 (true), 2 (false), or 3 (partial)")
+            errors.append(
+                f"{location}.c: expected 1 (true), 2 (false), 3 (partial), or 4 (contradiction)"
+            )
 
         for field in ("t", "v"):
             if not isinstance(post.get(field), str):
                 errors.append(f"{location}.{field}: expected a string")
-
-        if "e" in post:
-            if not isinstance(post["e"], str) or not post["e"].strip():
-                errors.append(f"{location}.e: expected a non-empty string")
 
         for field in ("h", "a"):
             if field in post and not isinstance(post[field], str):

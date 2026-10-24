@@ -46,6 +46,12 @@ Esta decisão é estratégica: Statics são mais baratos e simples de servir. A 
 
 Ao fazer com que a aplicação possa ser servida de forma estática e mantê-la mínima, fazemos com que qualquer servless host gratuito ou CDN tenha a capacidade de distritbuí-la. Isso simplifica toda a estrutura de Deploy e corta custos de maneira massiva. Por isso essa aplicação não tem camada de backend, nem SSE, nem Socket, nem Filas, nem nada disso. Claro que perdemos parte do controle fino (que não precisamos aqui), mas ganhamos em agilidade e praticidade: o que teríamos que gerenciar num backend, qualquer CDN free entrega -> distribuição rápida, queues, alta disponibilidade, escalabilidade elástica, etc...
 
+## Filtros
+
+A página monta uma barra de filtros a partir das tabelas de labels da `index.html`: uma linha por candidato e uma por selo. Nada selecionado mostra tudo; vários selos selecionados funcionam como "ou". O número ao lado de cada opção já considera o filtro da outra linha, então "Lula" + "Falso" mostra quantas checagens existem nesse cruzamento.
+
+O filtro é só de exibição: ele não altera o Fatômetro, que sempre lê o conjunto inteiro — filtrar a média faria o percentual mentir. Como a barra é construída a partir dos labels, adicionar um candidato ou um selo não exige tocar no markup.
+
 ## Design Mínimo
 
 O Design deve ser mínimo. Quando digo mínimo é MÍNIMO MESMO. Não há libraries de terceiros, trackings, layouts rebuscados. A prioridade é servir o conteúdo de forma organizada e O MAIS RAPIDO POSSÍVEL. Como a aplicação é feito para rodar em escala massiva da maneira mais barata que pudermos, todo byte conta com custo na escala. Fique à vontade para contribuir deixando a app mais bonita, mas tenha isso que acabo de dizer como premissa: nada além do mínimo necessário.
@@ -84,14 +90,15 @@ Onde:
 ```
 - `"id"` é um número inteiro positivo e único que identifica o post. É usado no link de compartilhar (`/#f1`), então nunca mude nem reaproveite o id de um post já publicado. Para um post novo, use o maior id + 1
 - `"n"` é o Nome do candidato. 1 para Lula, 2 para Flávio.
-- `"c"` é o check status, 1 para Verdadeiro, 2 para Falso e 3 para Parcial
+- `"c"` é o check status: 1 para Verdadeiro, 2 para Falso, 3 para Parcial e 4 para Contradição
 - `"h"` (opcional) é o horário em que a fala aconteceu no debate, no formato HH:MM (ex: "21:34"). Aparece no topo do card
 - `"a"` (opcional) é o tema/assunto da fala, ex: "Saúde", "Economia", "Segurança". Aparece ao lado do horário, no topo do card
 - `"t"` é o `text`, basicamente a declaração feita pelo candidato
 - `"v"` é a verificação, ou seja: o texto de demonstrando o que foi verificado
-- `"e"` (opcional) é a errata: um texto não vazio explicando o que foi corrigido, editado no mesmo item do posts.json
 - `"s"` (opcional) são as fontes: um array de URLs http(s), exibidas no card como links com o domínio de cada uma, sempre abertos em nova aba
 ```
+
+O selo 4 (Contradição) existe para as falas que não são afirmações factuais: posição, opinião ou promessa. Não dá para dizer que "sou a favor de X" é verdadeiro ou falso, mas dá para comparar a fala com o histórico de quem falou. Por não ter nota de verdade, o selo 4 fica fora da média do Fatômetro — ele aparece no card e no filtro, e não no cálculo.
 
 Cada objeto no array seguindo essa estrutura será renderizado como um card contendo foto e as informações checadas. Caso posts.json falhe ou seja inválido a página falhará silenciosamente e manterá o estado atual válido. Este objeto é configurado assim pra que possa ser distribuído com custo mínimo. Você pode mudar imagens e os labels editando a index.html. 
 

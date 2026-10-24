@@ -66,6 +66,8 @@
       <div class="thermo-scale" aria-hidden="true"><span>Falso</span><span>Parcial</span><span>Verdadeiro</span></div>
     </section>
 
+    <section class="filters" aria-label="Filtrar checagens" hidden></section>
+
     <main class="article-grid loading"></main>
 
     <footer class="foot">
@@ -78,8 +80,10 @@
           <dd>A fala contradiz os dados disponíveis.</dd>
           <dt><span class="badge" data-c="3">Parcial</span></dt>
           <dd>Parte da fala confere, mas há exagero, imprecisão ou falta de contexto.</dd>
+          <dt><span class="badge" data-c="4">Contradição</span></dt>
+          <dd>A fala é uma posição ou uma promessa, não um dado a conferir, e contradiz o próprio histórico de quem falou. Não entra na média do Fatômetro.</dd>
         </dl>
-        <p>A mesma régua vale para todos os candidatos. Só classificamos o que pode ser conferido com dados: opiniões ficam de fora. Cada verificação explica o que foi conferido e onde.</p>
+        <p>A mesma régua vale para todos os candidatos. Opinião não recebe nota de verdade: quando a fala é uma posição ou uma promessa, o que comparamos é o histórico de quem falou. Cada verificação explica o que foi conferido e onde.</p>
         <p>As checagens são feitas ao vivo, durante o debate, e podem ser revisadas.</p>
       </details>
       <p>Um projeto feito pela comunidade para a comunidade.</p>
@@ -133,7 +137,8 @@
       c: {
         1: 'Verdadeiro',
         2: 'Falso',
-        3: 'Parcial'
+        3: 'Parcial',
+        4: 'Contradição'
       },
       // images
       i: {
@@ -151,16 +156,24 @@
     let unseen = 0;
     let currentPosts = [];
 
-    function createFixHTML(fix) {
-      return typeof fix === 'string' && fix.trim() ? `<span class="label">Correção:</span><p class="fix">${escapeHTML(fix)}</p>` : '';
-    }
-
     function createSourcesHTML(sources) {
-      const links = (Array.isArray(sources) ? sources : [])
+      const urls = (Array.isArray(sources) ? sources : [])
         .map(u => { try { return new URL(u); } catch {} })
-        .filter(u => u && (u.protocol === 'https:' || u.protocol === 'http:'))
-        .map(u => `<li><a href="${escapeHTML(u.href)}" target="_blank" rel="noopener noreferrer">${escapeHTML(u.hostname.replace(/^www\./, ''))}</a></li>`);
-      return links.length ? `<span class="label">Fontes:</span><ul class="sources">${links.join('')}</ul>` : '';
+        .filter(u => u && (u.protocol === 'https:' || u.protocol === 'http:'));
+
+      // Two links from the same outlet would show the same name, so they get numbered
+      const names = urls.map(u => u.hostname.replace(/^www\./, ''));
+      const repeated = names.filter((name, i) => names.indexOf(name) !== i);
+      const seen = {};
+
+      const links = urls.map((u, i) => {
+        const name = names[i];
+        const label = repeated.includes(name) ? `${name} ${seen[name] = (seen[name] || 0) + 1}` : name;
+        return `<li><a href="${escapeHTML(u.href)}" target="_blank" rel="noopener noreferrer">${escapeHTML(label)}</a></li>`;
+      });
+
+      if (!links.length) return '';
+      return `<span class="label">${links.length > 1 ? 'Fontes' : 'Fonte'}:</span><ul class="sources">${links.join('')}</ul>`;
     }
 
     function escapeHTML(str) {
@@ -196,7 +209,6 @@
         </blockquote>
         <span class="label">Verificação:</span>
         <p>${escapeHTML(item.v)}</p>
-        ${createFixHTML(item.e)}
         ${createSourcesHTML(item.s)}`;
       el.addEventListener('animationend', () => el.classList.remove('new'), { once: true });
       return el;
@@ -204,13 +216,16 @@
 
     const MIN_CHECKS = 3;
 
+    // A contradição (c=4) não entra: a fala é uma posição, não um dado com nota de verdade
+    const SCORE = { 1: 1, 2: 0, 3: 0.5 };
+
     function renderThermo(items) {
-      const score = { Verdadeiro: 1, Parcial: 0.5, Falso: 0 };
-      const groups = Object.keys(labels.n).map((n) => [n, items.filter((item) => item.n == n)]);
+      const scored = items.filter((item) => SCORE[item.c] != null);
+      const groups = Object.keys(labels.n).map((n) => [n, scored.filter((item) => item.n == n)]);
       // All or nothing: showing only some candidates would single them out
       const ready = groups.every(([, mine]) => mine.length >= MIN_CHECKS);
       const rows = !ready ? '' : groups.map(([n, mine]) => {
-        const pct = Math.round(mine.reduce((sum, item) => sum + score[labels.c[item.c]], 0) / mine.length * 100);
+        const pct = Math.round(mine.reduce((sum, item) => sum + SCORE[item.c], 0) / mine.length * 100);
         const count = `${mine.length} checagens`;
         return `
           <div class="thermo-row" role="img" aria-label="${labels.n[n]}: ${pct}% verdadeiro em ${count}">
@@ -229,23 +244,76 @@
       return !!(item && labels.n[item.n] && labels.c[item.c] && item.t != null && item.t !== '');
     }
 
-    // Renders posts newest-first. Returns false if raw is not a valid posts array.
-    function render(raw) {
-      if (raw === lastRaw) return true;
+    // Active filters. An empty set means "no filter"; several values in a row are an OR
+    const filters = { n: new Set(), c: new Set() };
 
-      let items;
-      try { items = JSON.parse(raw); } catch { return false; }
-      if (!Array.isArray(items)) return false;
+    function matches(item) {
+      return (!filters.n.size || filters.n.has(item.n)) && (!filters.c.size || filters.c.has(item.c));
+    }
 
-      // Nothing on screen yet (first visit boots with an empty list): don't animate everything
-      const first = nodes.size === 0;
+    const filterBar = document.querySelector('.filters');
+
+    // One row per dimension, built from the label tables so a new candidate or seal needs no markup
+    const FILTER_ROWS = [
+      { dim: 'n', group: 'Candidato', labels: labels.n },
+      { dim: 'c', group: 'Classificação', labels: labels.c },
+    ];
+
+    // How many cards this chip would leave on screen, honouring the other row's filter
+    function countFor(dim, value) {
+      return currentPosts.filter((item) => canRender(item)
+        && (dim === 'n' ? item.n == value : (!filters.n.size || filters.n.has(item.n)))
+        && (dim === 'c' ? item.c == value : (!filters.c.size || filters.c.has(item.c)))).length;
+    }
+
+    function renderFilters() {
+      if (!filterBar.children.length) {
+        filterBar.innerHTML = FILTER_ROWS.map((row) => `
+          <div class="filter-row" role="group" aria-label="${row.group}">
+            ${Object.keys(row.labels).map((v) => `
+              <button type="button" class="chip" data-dim="${row.dim}" data-v="${v}"${row.dim === 'c' ? ` data-c="${v}"` : ''} aria-pressed="false">
+                ${row.dim === 'n' ? `<img src="/${labels.i[v]}" alt="" width="20" height="20" decoding="async">` : ''}${row.labels[v]}<span class="chip-n"></span>
+              </button>`).join('')}
+          </div>`).join('') + '<button type="button" class="chip clear" hidden>Limpar</button>';
+      }
+
+      for (const chip of filterBar.querySelectorAll('.chip[data-dim]')) {
+        const dim = chip.dataset.dim;
+        const value = Number(chip.dataset.v);
+        chip.setAttribute('aria-pressed', filters[dim].has(value));
+        chip.querySelector('.chip-n').textContent = countFor(dim, value);
+      }
+
+      filterBar.querySelector('.clear').hidden = !(filters.n.size || filters.c.size);
+      // Nothing to filter yet on the first checks of a debate
+      filterBar.hidden = currentPosts.filter(canRender).length < MIN_CHECKS;
+    }
+
+    filterBar.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+
+      if (chip.classList.contains('clear')) {
+        filters.n.clear();
+        filters.c.clear();
+      } else {
+        const set = filters[chip.dataset.dim];
+        const value = Number(chip.dataset.v);
+        set.has(value) ? set.delete(value) : set.add(value);
+      }
+      // Toggling a filter is not an update: nothing should animate or count as new
+      paint(false);
+    });
+
+    // Paints the cards the filter lets through, newest-first. Returns how many arrived animated
+    function paint(animate) {
       const next = new Map();
       const list = [];
       let added = 0;
 
-      for (let i = items.length - 1; i >= 0; i--) {
-        const item = items[i];
-        if (!canRender(item)) continue;
+      for (let i = currentPosts.length - 1; i >= 0; i--) {
+        const item = currentPosts[i];
+        if (!canRender(item) || !matches(item)) continue;
 
         const base = JSON.stringify(item);
         let key = base;
@@ -254,7 +322,7 @@
         let el = nodes.get(key);
         if (!el) {
           el = createCard(item);
-          if (!first) {
+          if (animate) {
             el.classList.add('new');
             added++;
           }
@@ -278,8 +346,27 @@
       }
 
       nodes = next;
-      lastRaw = raw;
+      // An empty list under an active filter needs a different message (see style.css)
+      main.classList.toggle('filtered', !!(filters.n.size || filters.c.size));
+      renderFilters();
+      return added;
+    }
+
+    // Renders posts newest-first. Returns false if raw is not a valid posts array.
+    function render(raw) {
+      if (raw === lastRaw) return true;
+
+      let items;
+      try { items = JSON.parse(raw); } catch { return false; }
+      if (!Array.isArray(items)) return false;
+
+      // Nothing on screen yet (first visit boots with an empty list): don't animate everything
+      const first = nodes.size === 0;
       currentPosts = items;
+      const added = paint(!first);
+
+      lastRaw = raw;
+      // The thermometer always reads the whole set: filtering it would skew the percentages
       renderThermo(items.filter(canRender));
 
       const shared = location.hash && document.getElementById(location.hash.slice(1));

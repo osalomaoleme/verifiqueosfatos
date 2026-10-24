@@ -45,7 +45,7 @@
   ];
 
   // Same tones as .badge in style.css
-  const tones = { 1: '#15803D', 2: '#B91C1C', 3: '#C2410C' };
+  const tones = { 1: '#15803D', 2: '#B91C1C', 3: '#C2410C', 4: '#6D28D9' };
   const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
   const SERIF = 'Georgia, "Times New Roman", serif';
 

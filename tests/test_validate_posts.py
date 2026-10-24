@@ -34,28 +34,12 @@ class ValidatePostsTests(unittest.TestCase):
 
         self.assertEqual(self.validate_value([post]), [])
 
-    def test_accepts_optional_errata(self) -> None:
-        post = {"id": 1, "n": 1, "c": 1, "t": "Claim", "v": "Check", "e": "Corrected year."}
+    def test_accepts_every_known_check_value(self) -> None:
+        for check in (1, 2, 3, 4):
+            with self.subTest(check=check):
+                post = {"id": 1, "n": 1, "c": check, "t": "Claim", "v": "Check"}
 
-        self.assertEqual(self.validate_value([post]), [])
-
-    def test_rejects_empty_errata(self) -> None:
-        for errata in ("", " \t\n"):
-            with self.subTest(errata=errata):
-                post = {"id": 1, "n": 1, "c": 1, "t": "Claim", "v": "Check", "e": errata}
-
-                errors = self.validate_value([post])
-
-                self.assertTrue(any("[0].e:" in error for error in errors))
-
-    def test_rejects_non_string_errata(self) -> None:
-        for errata in (None, 42, True, [], {}):
-            with self.subTest(errata=errata):
-                post = {"id": 1, "n": 1, "c": 1, "t": "Claim", "v": "Check", "e": errata}
-
-                errors = self.validate_value([post])
-
-                self.assertTrue(any("[0].e:" in error for error in errors))
+                self.assertEqual(self.validate_value([post]), [])
 
     def test_accepts_optional_time_and_topic(self) -> None:
         post = {"id": 1, "n": 1, "c": 1, "h": "21:34", "a": "Economia", "t": "Claim", "v": "Check"}
