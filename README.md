@@ -1,8 +1,12 @@
 # 🔍 Verifique os Fatos
 
+> **Esta é uma versão atualizada e modificada** do projeto original, mantida por [osalomaoleme](https://github.com/osalomaoleme). Projeto original: [felippe-regazio/verifiqueosfatos](https://github.com/felippe-regazio/verifiqueosfatos).
+
 Plataforma de verificação de declarações com Content Update automático. Construída para ser mínima (MÍNIMA MESMO). Esta plataforma é construída pensando em otimização máxima de recursos e custos, na medida do necessário para rodar em infra-estruturas gratuitas ou extremamente baratas.
 
-Instância produtiva em: https://verifiqueosfatos.com/
+Instância desta versão: https://osalomaoleme.github.io/verifiqueosfatos/
+
+Instância do projeto original: https://verifiqueosfatos.com/
 
 ## Arquitetura e Fluxo
 
@@ -190,6 +194,8 @@ Lembre-se: isso é uma PWA, uma vez carregada ela não muda mais. Para atualizar
 ## Deployment
 
 Apenas jogue esses arquivos em qualquer host ou CDN ligada a um domínio com SSL. Lembre-se que todos os clients devem apontar a request de posts.json para um single source of truth, ou seja: para um mesmo arquivo/host.
+
+Todos os caminhos de assets (`style.css`, `manifest.json`, imagens, `posts.json`, etc.) são relativos, então a aplicação funciona tanto em um domínio próprio (raiz) quanto em um subpath, como GitHub Pages de projeto (`usuario.github.io/repositorio/`). Esta instância, por exemplo, está publicada em https://osalomaoleme.github.io/verifiqueosfatos/.
 
 ## Contribuindo
 

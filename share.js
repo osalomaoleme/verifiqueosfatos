@@ -61,7 +61,7 @@
 
   // Same logo as the page header
   const logo = new Image();
-  logo.src = '/icon.png';
+  logo.src = 'icon.png';
   logo.decode().then(() => card && draw(), () => {});
 
   try {

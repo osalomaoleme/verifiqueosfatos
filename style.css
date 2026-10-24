@@ -136,6 +136,15 @@ main.filtered:empty::after {
   margin: 0;
 }
 
+.foot .fork-note {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.foot .fork-note a {
+  color: inherit;
+}
+
 /* Como classificamos: o critério de cada selo, sem JS */
 .how {
   max-width: 560px;

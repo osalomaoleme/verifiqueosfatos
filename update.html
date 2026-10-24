@@ -27,8 +27,8 @@
       } catch (error) {
         console.error('Erro durante a limpeza:', error);
       } finally {
-        // 3. Redirecionar para /
-        window.location.href = '/';
+        // 3. Redirecionar para a raiz do app (caminho relativo: funciona em subpath ou domínio próprio)
+        window.location.href = './';
       }
     })();    
   </script>

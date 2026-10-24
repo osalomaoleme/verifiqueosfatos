@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="/favicon.ico?v=2" sizes="48x48 32x32 16x16">
-  <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="/normalize.css">
-  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="favicon.ico?v=2" sizes="48x48 32x32 16x16">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="normalize.css">
+  <link rel="stylesheet" href="style.css">
   <meta name="theme-color" content="#FAFAFA">
   <script>
     // Applies the theme before first paint: the saved choice, otherwise the system's
@@ -24,17 +24,17 @@
   </script>
 
   <title>Verifique os Fatos</title>
-<meta name="description" content="Acompanhe a checagem em tempo real das falas e propostas dos candidatos à presidente no debate eleitoral da Globo.">
-<link rel="canonical" href="https://verifiqueosfatos.com/">
+<meta name="description" content="Acompanhe a checagem em tempo real das falas e propostas dos candidatos à presidente no debate eleitoral da Globo. Versão atualizada e modificada do projeto original.">
+<link rel="canonical" href="https://osalomaoleme.github.io/verifiqueosfatos/">
 
 <!-- Open Graph (WhatsApp, Facebook, LinkedIn, Telegram, Discord) -->
 <meta property="og:locale" content="pt_BR">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://verifiqueosfatos.com/">
+<meta property="og:url" content="https://osalomaoleme.github.io/verifiqueosfatos/">
 <meta property="og:title" content="Verifique os Fatos">
-<meta property="og:description" content="Acompanhe a checagem em tempo real das falas e propostas dos candidatos à presidente no debate eleitoral da Globo.">
-<meta property="og:image" content="https://verifiqueosfatos.com/verifique-os-fatos.png">
-<meta property="og:image:secure_url" content="https://verifiqueosfatos.com/verifique-os-fatos.png">
+<meta property="og:description" content="Acompanhe a checagem em tempo real das falas e propostas dos candidatos à presidente no debate eleitoral da Globo. Versão atualizada e modificada do projeto original.">
+<meta property="og:image" content="https://osalomaoleme.github.io/verifiqueosfatos/verifique-os-fatos.png">
+<meta property="og:image:secure_url" content="https://osalomaoleme.github.io/verifiqueosfatos/verifique-os-fatos.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -45,13 +45,13 @@
   <div class="layout">
     <header class="top">
       <span class="logo" aria-hidden="true">
-        <img src="/icon.png" alt="" width="40" height="40" />  
+        <img src="icon.png" alt="" width="40" height="40" />
       </span>
       <div>
         <h1>Verifique os Fatos</h1>
         <p class="sub">Checagem em tempo real<span class="long"> das falas dos candidatos à presidente</span></p>
       </div>
-      <a class="github" href="https://github.com/felippe-regazio/verifiqueosfatos" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+      <a class="github" href="https://github.com/osalomaoleme/verifiqueosfatos" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2A10 10 0 0 0 2 12c0 4.4 2.9 8.2 6.8 9.5.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.4-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 22 12 10 10 0 0 0 12 2z"/></svg>
       </a>
       <button type="button" class="theme" aria-label="Modo escuro" aria-pressed="false">
@@ -87,6 +87,7 @@
         <p>As checagens são feitas ao vivo, durante o debate, e podem ser revisadas.</p>
       </details>
       <p>Um projeto feito pela comunidade para a comunidade.</p>
+      <p class="fork-note">Esta é uma versão atualizada e modificada, mantida por <a href="https://github.com/osalomaoleme" target="_blank" rel="noopener noreferrer">osalomaoleme</a>, com base no <a href="https://github.com/felippe-regazio/verifiqueosfatos" target="_blank" rel="noopener noreferrer">projeto original</a>.</p>
     </footer>
   </div>
 
@@ -117,8 +118,8 @@
         const button = e.target.closest('.card .story');
         if (!button) return;
         loading = loading || Promise.all([
-          load('link', { rel: 'stylesheet', href: '/share.css' }),
-          load('script', { src: '/share.js' }),
+          load('link', { rel: 'stylesheet', href: 'share.css' }),
+          load('script', { src: 'share.js' }),
         ]);
         loading.then(() => self.openShare && self.openShare(button), () => loading = null);
       });
@@ -196,7 +197,7 @@
       el.innerHTML = `
         ${createMetaHTML(item)}
         <header>
-          <img src="/${labels.i[item.n]}" alt="" width="56" height="56" decoding="async" loading="lazy">
+          <img src="${labels.i[item.n]}" alt="" width="56" height="56" decoding="async" loading="lazy">
           <h2>${labels.n[item.n]}</h2>
           <div class="tags">
             <span class="badge" data-c="${item.c}">${labels.c[item.c] || '?'}</span>
@@ -229,7 +230,7 @@
         const count = `${mine.length} checagens`;
         return `
           <div class="thermo-row" role="img" aria-label="${labels.n[n]}: ${pct}% verdadeiro em ${count}">
-            <img src="/${labels.i[n]}" alt="" width="32" height="32">
+            <img src="${labels.i[n]}" alt="" width="32" height="32">
             <span class="thermo-name">${labels.n[n]}<small>${count}</small></span>
             <div class="thermo-bar"><span style="left: ${pct}%"></span></div>
             <span class="thermo-pct">${pct}%</span>
@@ -272,7 +273,7 @@
           <div class="filter-row" role="group" aria-label="${row.group}">
             ${Object.keys(row.labels).map((v) => `
               <button type="button" class="chip" data-dim="${row.dim}" data-v="${v}"${row.dim === 'c' ? ` data-c="${v}"` : ''} aria-pressed="false">
-                ${row.dim === 'n' ? `<img src="/${labels.i[v]}" alt="" width="20" height="20" decoding="async">` : ''}${row.labels[v]}<span class="chip-n"></span>
+                ${row.dim === 'n' ? `<img src="${labels.i[v]}" alt="" width="20" height="20" decoding="async">` : ''}${row.labels[v]}<span class="chip-n"></span>
               </button>`).join('')}
           </div>`).join('') + '<button type="button" class="chip clear" hidden>Limpar</button>';
       }
@@ -385,7 +386,7 @@
     }
 
     const DELAY = 15000;
-    const URI_POSTS_JSON = '/posts.json';
+    const URI_POSTS_JSON = 'posts.json';
 
     let timer, busy;
 
